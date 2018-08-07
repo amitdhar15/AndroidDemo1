@@ -1,0 +1,26 @@
+#
+# Build configuration for Circle CI
+#
+
+general:
+    artifacts:
+        - /home/ubuntu/AndroidDemo/app/build/outputs/apk/
+
+machine:
+    environment:
+        ANDROID_HOME: /usr/local/android-sdk-linux
+
+dependencies:
+    pre:
+        - wget "https://services.gradle.org/distributions/gradle-4.4-all.zip"; unzip gradle-4.4-all.zip
+        - source environmentSetup.sh && copyEnvVarsToGradleProperties
+    override:
+        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-27,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
+        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+
+
+
+test:
+    override:
+        - (./gradlew assemble):
+            timeout: 360
