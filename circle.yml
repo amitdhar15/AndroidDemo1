@@ -1,28 +1,26 @@
-#
-# Build configuration for Circle CI
-#
-
-general:
-    artifacts:
-        - /home/ubuntu/AndroidDemo/app/build/outputs/apk/
-
+## Customize the test machine
 machine:
-    environment:
-        - sudo ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+  environment:
+    ANDROID_TARGET: android-27
+    ADB_INSTALL_TIMEOUT: 12
+    - sudo ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+  java:
+    version: oraclejdk8
 
+
+## Customize checkout
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init # use submodules
+
+## Customize dependencies
 dependencies:
-    pre:
-        - wget "https://services.gradle.org/distributions/gradle-4.4-all.zip"; unzip gradle-4.4-all.zip
-        - source environmentSetup.sh && copyEnvVarsToGradleProperties
-    override:
-       - echo "sdk.dir = /Users/$(whoami)/Library/Android/sdk" > android/local.properties
+  pre:
+    # workaround for "failed to find Build Tools revision xx"
+    # https://discuss.circleci.com/t/android-build-tools-23-0-2-not-available/455/3
+    - echo y | android update sdk --no-ui --all --filter platform-tools,tools,extra-android-m2repository,extra-google-m2repository,android-27
+    - echo y | android update sdk --no-ui --all --filter build-tools-27.0.3
 
-        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-27,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
-        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
-
-
-
-test:
-    override:
-        - (./gradlew assemble):
-            timeout: 360
+  override:
+    - sudo ./gradlew dependencies
