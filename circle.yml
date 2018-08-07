@@ -1,26 +1,21 @@
-## Customize the test machine
+#
+# Build configuration for Circle CI
+#
+
+general:
+    artifacts:
+        - /home/ubuntu/AndroidDemo/app/build/outputs/apk/
+
 machine:
-  environment:
-    ANDROID_TARGET: android-27
-    ADB_INSTALL_TIMEOUT: 12
-    - sudo ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
-  java:
-    version: oraclejdk8
+    environment:
+        ANDROID_HOME: /usr/local/android-sdk-linux
 
-
-## Customize checkout
-checkout:
-  post:
-    - git submodule sync
-    - git submodule update --init # use submodules
-
-## Customize dependencies
 dependencies:
-  pre:
-    # workaround for "failed to find Build Tools revision xx"
-    # https://discuss.circleci.com/t/android-build-tools-23-0-2-not-available/455/3
-    - echo y | android update sdk --no-ui --all --filter platform-tools,tools,extra-android-m2repository,extra-google-m2repository,android-27
-    - echo y | android update sdk --no-ui --all --filter build-tools-27.0.3
+    override:
+        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-27,extra-google-m2repository,extra-google-google_play_services,extra-android-support
+        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
 
-  override:
-    - sudo ./gradlew dependencies
+test:
+    override:
+        - (./gradlew assemble):
+            timeout: 360
