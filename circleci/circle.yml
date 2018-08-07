@@ -10,20 +10,14 @@ machine:
     environment:
         ANDROID_HOME: /usr/local/android-sdk-linux
 
-#dependencies:
-#    override:
-#        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-21,extra-google-m2repository,extra-google-google_play_services,extra-android-support
-#        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
-
-
-
 dependencies:
     pre:
-        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,extra-google-m2repository,extra-google-google_play_services,extra-android-support,android-27
-        - echo y | android update sdk --no-ui --all --filter build-tools-27.0.3
-    cache_directories:
-        - /usr/local/android-sdk-linux/tools
-        - /usr/local/android-sdk-linux/build-tools/27.0.3
+        - wget "https://services.gradle.org/distributions/gradle-4.4-all.zip"; unzip gradle-4.4-all.zip
+        - source environmentSetup.sh && copyEnvVarsToGradleProperties
+    override:
+        - echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-27.0.3,android-27,extra-google-m2repository,extra-google-google_play_services,extra-android-m2repository
+        - ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+
 
 
 test:
